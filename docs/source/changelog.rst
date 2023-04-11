@@ -2,6 +2,14 @@
 CHANGELOG
 =========
 
+XXXX.X.X       (XXXX-XX-XX)
+---------------------------
+
+**Performance**
+
+- Optimize source refresh and ES indexation process -p
+
+
 2023.4.8       (2023-04-24)
 ---------------------------
 
