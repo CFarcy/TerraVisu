@@ -20,6 +20,7 @@ from .models import (
     ShapefileSource,
     Source,
     WMTSSource,
+    SourceReporting,
 )
 
 
@@ -101,10 +102,19 @@ class FieldSerializer(serializers.ModelSerializer):
         read_only_fields = ("name", "sample", "source")
 
 
+class SourceReportingSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(source="get_status_display")
+
+    class Meta:
+        fields = "__all__"
+        model = SourceReporting
+
+
 class SourceSerializer(PolymorphicModelSerializer):
     fields = FieldSerializer(many=True, required=False)
     status = serializers.SerializerMethodField()
     slug = serializers.SlugField(max_length=255, read_only=True)
+    report = SourceReportingSerializer(read_only=True)
 
     class Meta:
         fields = "__all__"
@@ -159,7 +169,9 @@ class SourceListSerializer(serializers.ModelSerializer):
             "status",
             "name",
             "geom_type",
+            "report",
         )
+        depth = 1
 
     def get__type(self, instance):
         return instance.__class__.__name__
@@ -254,7 +266,8 @@ class GeoJSONSourceSerializer(FileSourceSerializer):
     class Meta:
         model = GeoJSONSource
         fields = "__all__"
-        extra_kwargs = {"file": {"write_only": True}}
+        extra_kwargs = {"file": {"write_only": True}, "report": {"read_only": True}}
+        depth = 1
 
     def _validate_field_infos(self, data):
         # remove _type field as it is not needed by the model
